@@ -53,9 +53,15 @@ export default function RegisterPage() {
         data.role === 'HOSPITAL' ? '/hospital/setup' : '/patient/dashboard',
         { replace: true }
       )
-    } catch (err) {
-      toast.error(err.response?.data?.message || 'Registration failed')
-    } finally {
+    }  catch (err) {
+  console.log("FULL ERROR:", err)
+  console.log("RESPONSE:", err.response)
+  console.log("DATA:", err.response?.data)
+
+  toast.error(
+    JSON.stringify(err.response?.data) || 'Registration failed'
+  )
+} finally {
       setLoading(false)
     }
   }
