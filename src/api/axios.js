@@ -2,7 +2,7 @@
 import axios from 'axios'
 import toast from 'react-hot-toast'
 
-const BASE_URL = '/api'
+const BASE_URL = 'https://mediresq-backend-6bwv.onrender.com/'
 
 const api = axios.create({
   baseURL: BASE_URL,
@@ -15,7 +15,7 @@ api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('accessToken')
     if (token) config.headers.Authorization = `Bearer ${token}`
-    return config
+    return configend
   },
   (error) => Promise.reject(error)
 )
