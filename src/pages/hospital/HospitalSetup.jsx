@@ -53,15 +53,11 @@ export default function HospitalSetup() {
     try {
       await hospitalApi.createProfile({
         ...form,
-        pincode: form.pincode || '000000',
-        state: form.state || 'Karnataka',
         latitude: form.latitude ? parseFloat(form.latitude) : null,
         longitude: form.longitude ? parseFloat(form.longitude) : null,
         totalBeds: form.totalBeds ? parseInt(form.totalBeds) : 0,
         totalIcuBeds: form.totalIcuBeds ? parseInt(form.totalIcuBeds) : 0,
-        establishedYear: form.establishedYear
-          ? parseInt(form.establishedYear)
-          : null,
+        establishedYear: form.establishedYear ? parseInt(form.establishedYear) : null,
       })
       setDone(true)
     } catch (e) {
