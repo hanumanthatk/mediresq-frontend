@@ -9,11 +9,8 @@ export default defineConfig({
   server: {
     port: 5173,
     proxy: {
-      '/api/ws': {
-        target: 'http://localhost:8080',
-        changeOrigin: true,
-        ws: true,
-      },
+      // Only used in local development
+      // Production uses VITE_API_URL directly
       '/api': {
         target: 'http://localhost:8080',
         changeOrigin: true,
