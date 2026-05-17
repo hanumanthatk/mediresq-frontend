@@ -1,10 +1,19 @@
 import { useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
-import { Heart, Eye, EyeOff, Loader2, ArrowRight, ShieldCheck } from 'lucide-react'
+import {
+  Heart,
+  Eye,
+  EyeOff,
+  Loader2,
+  ArrowRight,
+  ShieldCheck
+} from 'lucide-react'
+
 import toast from 'react-hot-toast'
 import axios from 'axios'
 
 const DEMO_ACCOUNTS = [
+
   {
     role: 'ADMIN',
     email: 'admin@smartemergency.com',
@@ -25,6 +34,7 @@ const DEMO_ACCOUNTS = [
     pw: 'Patient@123',
     color: 'green'
   },
+
 ]
 
 export default function LoginPage() {
@@ -46,6 +56,8 @@ export default function LoginPage() {
 
   const [loading, setLoading] = useState(false)
 
+  /* HANDLE INPUT */
+
   const handle = (e) => {
 
     setForm((prev) => ({
@@ -58,23 +70,25 @@ export default function LoginPage() {
 
   }
 
-  /* LOGIN FUNCTION */
+  /* LOGIN */
 
   const submit = async (e) => {
 
     e.preventDefault()
 
-    if (!form.email || !form.password) {
+    if(!form.email || !form.password){
 
-      return toast.error('Please fill all fields')
+      return toast.error(
+        'Please fill all fields'
+      )
 
     }
 
     setLoading(true)
 
-    try {
+    try{
 
-      /* API CALL */
+      /* LOGIN API */
 
       const response = await axios.post(
 
@@ -90,9 +104,9 @@ export default function LoginPage() {
 
         {
 
-          headers: {
+          headers:{
 
-            'Content-Type': 'application/json'
+            'Content-Type':'application/json'
 
           }
 
@@ -106,13 +120,17 @@ export default function LoginPage() {
 
       /* SAVE TOKEN */
 
-      if (data.token) {
+      const token =
+
+        data.accessToken || data.token
+
+      if(token){
 
         localStorage.setItem(
 
           'token',
 
-          data.token
+          token
 
         )
 
@@ -120,52 +138,79 @@ export default function LoginPage() {
 
       /* SAVE USER */
 
-      if (data.user) {
+      const userData = {
 
-        localStorage.setItem(
+        userId: data.userId,
 
-          'user',
+        email: data.email,
 
-          JSON.stringify(data.user)
+        fullName: data.fullName,
 
-        )
+        role: data.role
 
       }
 
+      localStorage.setItem(
+
+        'user',
+
+        JSON.stringify(userData)
+
+      )
+
+      /* SUCCESS MESSAGE */
+
       toast.success(
 
-        `Welcome back ${data.user?.firstName || ''}!`
-      )
-
-      /* ROLE BASED REDIRECT */
-
-      const role = data.user?.role
-
-      const redirect = from || (
-
-        role === 'ADMIN'
-          ? '/admin/dashboard'
-
-          : role === 'HOSPITAL'
-          ? '/hospital/dashboard'
-
-          : '/patient/dashboard'
+        `Welcome back ${data.fullName || ''}!`
 
       )
 
-      navigate(
+      /* ROLE FIX */
 
-        redirect,
+      const role =
 
-        {
+        data.role?.toUpperCase()
 
-          replace: true
+      console.log('USER ROLE:', role)
 
-        }
+      /* DASHBOARD REDIRECT */
 
-      )
+      let redirect = '/patient/dashboard'
 
-    } catch (err) {
+      if(role?.includes('ADMIN')){
+
+        redirect = '/admin/dashboard'
+
+      }
+
+      else if(role?.includes('HOSPITAL')){
+
+        redirect = '/hospital/dashboard'
+
+      }
+
+      /* REDIRECT */
+
+      setTimeout(() => {
+
+        navigate(
+
+          from || redirect,
+
+          {
+
+            replace:true
+
+          }
+
+        )
+
+      }, 1000)
+
+    }
+
+    catch(err){
 
       console.log('LOGIN ERROR:', err)
 
@@ -177,7 +222,9 @@ export default function LoginPage() {
 
       )
 
-    } finally {
+    }
+
+    finally{
 
       setLoading(false)
 
@@ -203,7 +250,7 @@ export default function LoginPage() {
 
       {
 
-        icon: '🔑'
+        icon:'🔑'
 
       }
 
@@ -214,12 +261,17 @@ export default function LoginPage() {
   return (
 
     <div
+
       className="min-h-screen bg-slate-950 flex items-center justify-center p-4"
 
       style={{
+
         backgroundImage:
+
           'radial-gradient(ellipse at 30% 40%, rgba(229,29,29,0.06) 0%, transparent 60%)'
+
       }}
+
     >
 
       <div className="w-full max-w-md">
@@ -229,13 +281,18 @@ export default function LoginPage() {
         <div className="flex flex-col items-center mb-8">
 
           <div
+
             className="w-14 h-14 rounded-2xl bg-brand-600 flex items-center justify-center mb-4
             shadow-[0_0_40px_rgba(229,29,29,0.5)]"
+
           >
 
             <Heart
+
               className="w-7 h-7 text-white"
+
               fill="currentColor"
+
             />
 
           </div>
@@ -264,7 +321,13 @@ export default function LoginPage() {
 
           </h2>
 
-          <form onSubmit={submit} className="space-y-4">
+          <form
+
+            onSubmit={submit}
+
+            className="space-y-4"
+
+          >
 
             {/* EMAIL */}
 
@@ -340,9 +403,9 @@ export default function LoginPage() {
 
                     show
 
-                      ? <EyeOff className="w-4 h-4" />
+                    ? <EyeOff className="w-4 h-4" />
 
-                      : <Eye className="w-4 h-4" />
+                    : <Eye className="w-4 h-4" />
 
                   }
 
@@ -368,21 +431,21 @@ export default function LoginPage() {
 
                 loading
 
-                  ? <>
+                ? <>
 
-                      <Loader2 className="w-4 h-4 animate-spin" />
+                    <Loader2 className="w-4 h-4 animate-spin" />
 
-                      Signing in...
+                    Signing in...
 
-                    </>
+                  </>
 
-                  : <>
+                : <>
 
-                      <ArrowRight className="w-4 h-4" />
+                    <ArrowRight className="w-4 h-4" />
 
-                      Sign In
+                    Sign In
 
-                    </>
+                  </>
 
               }
 
