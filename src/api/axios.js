@@ -1,106 +1,311 @@
 // src/api/axios.js
+
 import axios from 'axios'
+
 import toast from 'react-hot-toast'
 
-// ── Base URL ─────────────────────────────────────────────
-// Uses environment variable for flexibility across environments
-// Local:      /api  (proxied by Vite to localhost:8080)
-// Production: https://mediresq-backend-6bwv.onrender.com/api
+/* =========================================
+   BASE URL
+========================================= */
+
 const BASE_URL = import.meta.env.VITE_API_URL
+
   ? `${import.meta.env.VITE_API_URL}/api`
+
   : 'https://mediresq-backend-6bwv.onrender.com/api'
 
-// ── Axios Instance ───────────────────────────────────────
+/* =========================================
+   AXIOS INSTANCE
+========================================= */
+
 const api = axios.create({
+
   baseURL: BASE_URL,
-  headers: { 'Content-Type': 'application/json' },
-  timeout: 60000, // 60s — Render free tier has cold start delay of 30-60s
+
+  headers: {
+
+    'Content-Type': 'application/json'
+
+  },
+
+  timeout: 60000
+
 })
 
-// ── Request Interceptor: Attach JWT ─────────────────────
+/* =========================================
+   REQUEST INTERCEPTOR
+========================================= */
+
 api.interceptors.request.use(
+
   (config) => {
-    const token = localStorage.getItem('accessToken')
-    if (token) config.headers.Authorization = `Bearer ${token}`
+
+    /* GET TOKEN */
+
+    const token =
+
+      localStorage.getItem('token')
+
+      ||
+
+      localStorage.getItem('accessToken')
+
+    /* ATTACH TOKEN */
+
+    if(token){
+
+      config.headers.Authorization =
+
+        `Bearer ${token}`
+
+    }
+
+    console.log(
+
+      'API REQUEST:',
+
+      config.url,
+
+      config.headers.Authorization
+
+    )
+
     return config
+
   },
-  (error) => Promise.reject(error)
+
+  (error) => {
+
+    return Promise.reject(error)
+
+  }
+
 )
 
-// ── Response Interceptor: Handle Errors ──────────────────
+/* =========================================
+   RESPONSE INTERCEPTOR
+========================================= */
+
 api.interceptors.response.use(
-  (response) => response,
+
+  (response) => {
+
+    return response
+
+  },
 
   async (error) => {
+
     const originalRequest = error.config
 
-    // ── No response (server down / cold start) ──
-    if (!error.response) {
+    console.log(
+
+      'API ERROR:',
+
+      error.response?.status,
+
+      error.response?.data
+
+    )
+
+    /* =====================================
+       NO RESPONSE
+    ===================================== */
+
+    if(!error.response){
+
       toast.error(
-        'Server is starting up. Please wait 30 seconds and try again.',
-        { duration: 6000 }
+
+        'Server is waking up. Please wait and try again.',
+
+        {
+
+          duration:6000
+
+        }
+
       )
+
       return Promise.reject(error)
+
     }
 
-    // ── 401 Unauthorized: Try token refresh ──
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    /* =====================================
+       401 UNAUTHORIZED
+    ===================================== */
+
+    if(
+
+      error.response?.status === 401
+
+      &&
+
+      !originalRequest._retry
+
+    ){
+
       originalRequest._retry = true
 
-      try {
-        const refreshToken = localStorage.getItem('refreshToken')
-        if (!refreshToken) throw new Error('No refresh token')
+      try{
+
+        const refreshToken =
+
+          localStorage.getItem(
+
+            'refreshToken'
+
+          )
+
+        if(!refreshToken){
+
+          throw new Error(
+
+            'No refresh token'
+
+          )
+
+        }
 
         const { data } = await axios.post(
+
           `${BASE_URL}/auth/refresh`,
+
           null,
+
           {
-            headers: { 'Refresh-Token': refreshToken },
-            timeout: 60000,
+
+            headers:{
+
+              'Refresh-Token': refreshToken
+
+            },
+
+            timeout:60000
+
           }
+
         )
 
-        // Save new access token
-        localStorage.setItem('accessToken', data.accessToken)
+        /* SAVE NEW TOKEN */
 
-        // Retry original request with new token
-        originalRequest.headers.Authorization = `Bearer ${data.accessToken}`
+        localStorage.setItem(
+
+          'token',
+
+          data.accessToken
+
+        )
+
+        localStorage.setItem(
+
+          'accessToken',
+
+          data.accessToken
+
+        )
+
+        /* RETRY REQUEST */
+
+        originalRequest.headers.Authorization =
+
+          `Bearer ${data.accessToken}`
+
         return api(originalRequest)
 
-      } catch (refreshError) {
-        // Refresh failed — clear storage and redirect to login
-        localStorage.clear()
-        toast.error('Session expired. Please login again.')
-        window.location.href = '/login'
-        return Promise.reject(refreshError)
       }
+
+      catch(refreshError){
+
+        console.log(
+
+          'REFRESH ERROR:',
+
+          refreshError
+
+        )
+
+        localStorage.clear()
+
+        toast.error(
+
+          'Session expired. Please login again.'
+
+        )
+
+        window.location.href = '/login'
+
+        return Promise.reject(refreshError)
+
+      }
+
     }
 
-    // ── 403 Forbidden ──
-    if (error.response?.status === 403) {
-      toast.error('Access denied. You do not have permission.')
-    }
+    /* =====================================
+       403 FORBIDDEN
+    ===================================== */
 
-    // ── 404 Not Found ──
-    if (error.response?.status === 404) {
-      toast.error('Resource not found.')
-    }
+    if(error.response?.status === 403){
 
-    // ── 500 Server Error ──
-    if (error.response?.status === 500) {
-      toast.error('Server error. Please try again.')
-    }
-
-    // ── 503 Service Unavailable (Render sleeping) ──
-    if (error.response?.status === 503) {
       toast.error(
-        'Server is waking up. Please try again in 30 seconds.',
-        { duration: 6000 }
+
+        'Access denied. Invalid token or permissions.'
+
       )
+
+    }
+
+    /* =====================================
+       404 NOT FOUND
+    ===================================== */
+
+    if(error.response?.status === 404){
+
+      toast.error(
+
+        'API endpoint not found.'
+
+      )
+
+    }
+
+    /* =====================================
+       500 SERVER ERROR
+    ===================================== */
+
+    if(error.response?.status === 500){
+
+      toast.error(
+
+        'Internal server error.'
+
+      )
+
+    }
+
+    /* =====================================
+       503 SERVICE UNAVAILABLE
+    ===================================== */
+
+    if(error.response?.status === 503){
+
+      toast.error(
+
+        'Server is starting. Try again in 30 seconds.',
+
+        {
+
+          duration:6000
+
+        }
+
+      )
+
     }
 
     return Promise.reject(error)
+
   }
+
 )
 
 export default api
