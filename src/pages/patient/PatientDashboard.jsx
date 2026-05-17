@@ -51,104 +51,88 @@ export default function PatientDashboard() {
   ========================================= */
 
   const [requests, setRequests] = useState([
+  {
+    id: 1,
+    requestNumber: 'ER-F78D8610',
+    status: 'CANCELLED',
+    priority: 'MEDIUM',
+    patientCondition:
+      'he is feeling dizzy and he is not responding properly',
+    createdAt: new Date()
+  },
 
-    {
-      id: 1,
-      requestNumber: 'ER-F78D8610',
-      status: 'CANCELLED',
-      priority: 'MEDIUM',
-      patientCondition:
-        'he is feeling dizzy and he is not responding properly',
-      createdAt: new Date()
-    },
+  {
+    id: 2,
+    requestNumber: 'ER-66FF448F',
+    status: 'CANCELLED',
+    priority: 'CRITICAL',
+    patientCondition:
+      'SOS - Emergency assistance required immediately',
+    createdAt: new Date()
+  },
 
-    {
-      id: 2,
-      requestNumber: 'ER-66FF448F',
-      status: 'CANCELLED',
-      priority: 'CRITICAL',
-      patientCondition:
-        'SOS - Emergency assistance required immediately',
-      createdAt: new Date()
-    },
+  {
+    id: 3,
+    requestNumber: 'ER-02F19CBB',
+    status: 'CANCELLED',
+    priority: 'CRITICAL',
+    patientCondition:
+      'SOS - Emergency assistance required immediately',
+    createdAt: new Date()
+  }
+])
 
-    {
-      id: 3,
-      requestNumber: 'ER-02F19CBB',
-      status: 'CANCELLED',
-      priority: 'CRITICAL',
-      patientCondition:
-        'SOS - Emergency assistance required immediately',
-      createdAt: new Date()
-    }
+const [hospitals, setHospitals] = useState([
+  {
+    id: 1,
+    name: 'City Hospital',
+    city: 'Bangalore',
+    type: 'Multi Speciality',
 
-  ])
+    beds: [
+      {
+        bedType: 'ICU',
+        availableCount: 8,
+        totalCount: 20
+      },
 
-  const [hospitals, setHospitals] = useState([
+      {
+        bedType: 'General',
+        availableCount: 25,
+        totalCount: 50
+      }
+    ]
+  },
 
-    {
-      id: 1,
-      name: 'City Hospital',
-      city: 'Bangalore',
-      type: 'Multi Speciality',
+  {
+    id: 2,
+    name: 'Apollo Emergency',
+    city: 'Bangalore',
+    type: 'Emergency',
 
-      beds: [
+    beds: [
+      {
+        bedType: 'ICU',
+        availableCount: 5,
+        totalCount: 15
+      }
+    ]
+  }
+])
 
-        {
-          bedType: 'ICU',
-          availableCount: 8,
-          totalCount: 20
-        },
+const [notifs, setNotifs] = useState([
+  {
+    id: 1,
+    title: 'Emergency Alert',
+    message: 'Ambulance dispatched successfully'
+  },
 
-        {
-          bedType: 'General',
-          availableCount: 25,
-          totalCount: 50
-        }
-
-      ]
-    },
-
-    {
-      id: 2,
-      name: 'Apollo Emergency',
-      city: 'Bangalore',
-      type: 'Emergency',
-
-      beds: [
-
-        {
-          bedType: 'ICU',
-          availableCount: 5,
-          totalCount: 15
-        }
-
-      ]
-    }
-
-  ])
-
-  const [notifs, setNotifs] = useState([
-
-    {
-      id: 1,
-      title: 'Emergency Alert',
-      message: 'Ambulance dispatched successfully'
-    },
-
-    {
-      id: 2,
-      title: 'Hospital Update',
-      message: 'ICU beds available nearby'
-    },
-
-    {
-      id: 3,
-      title: 'Reminder',
-      message: 'Keep location enabled for SOS'
-    }
-
-  ])
+  {
+    id: 2,
+    title: 'Hospital Update',
+    message: 'ICU beds available nearby'
+  }
+])
 
   const [loading, setLoading] = useState(true)
 
