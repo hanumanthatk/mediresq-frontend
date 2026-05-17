@@ -118,45 +118,56 @@ export default function LoginPage() {
 
       console.log('LOGIN SUCCESS:', data)
 
-      /* SAVE TOKEN */
+    /* SAVE TOKEN */
 
-      const token =
+const token =
 
-        data.accessToken || data.token
+  data.accessToken || data.token
 
-      if(token){
+if(token){
 
-        localStorage.setItem(
+  localStorage.setItem(
 
-          'token',
+    'token',
 
-          token
+    token
 
-        )
+  )
 
-      }
+  localStorage.setItem(
 
-      /* SAVE USER */
+    'accessToken',
 
-      const userData = {
+    token
 
-        userId: data.userId,
+  )
 
-        email: data.email,
+}
 
-        fullName: data.fullName,
+/* SAVE USER */
 
-        role: data.role
+const userData = {
 
-      }
+  userId: data.userId,
 
-      localStorage.setItem(
+  email: data.email,
 
-        'user',
+  fullName: data.fullName,
 
-        JSON.stringify(userData)
+  role: data.role
 
-      )
+}
+
+localStorage.setItem(
+
+  'user',
+
+  JSON.stringify(userData)
+
+)
+/* SAVE TOKEN */
+
+      
 
       /* SUCCESS MESSAGE */
 
