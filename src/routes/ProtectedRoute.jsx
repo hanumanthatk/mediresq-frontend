@@ -1,33 +1,123 @@
 import { Navigate, useLocation } from 'react-router-dom'
-import { useAuth } from '../context/AuthContext'
 
-// Redirects to /login if not authenticated
+/* =========================================
+   PRIVATE ROUTE
+========================================= */
+
 export function PrivateRoute({ children }) {
-  const { user, loading } = useAuth()
+
   const location = useLocation()
 
-  if (loading) return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-950">
-      <div className="flex flex-col items-center gap-4">
-        <div className="w-10 h-10 border-2 border-brand-600 border-t-transparent rounded-full animate-spin" />
-        <p className="text-gray-500 text-sm">Loading…</p>
-      </div>
-    </div>
-  )
+  /* GET TOKEN */
 
-  if (!user) return <Navigate to="/login" state={{ from: location }} replace />
+  const token = localStorage.getItem('token')
+
+  /* NO TOKEN */
+
+  if (!token) {
+
+    return (
+
+      <Navigate
+
+        to="/login"
+
+        state={{ from: location }}
+
+        replace
+
+      />
+
+    )
+
+  }
+
   return children
+
 }
 
-// Redirects if role doesn't match
-export function RoleRoute({ children, allowedRoles }) {
-  const { user } = useAuth()
+/* =========================================
+   ROLE ROUTE
+========================================= */
 
-  if (!user || !allowedRoles.includes(user.role)) {
-    const redirect = user?.role === 'ADMIN'     ? '/admin/dashboard'
-                   : user?.role === 'HOSPITAL'  ? '/hospital/dashboard'
-                   : '/patient/dashboard'
-    return <Navigate to={redirect} replace />
+export function RoleRoute({
+
+  children,
+
+  allowedRoles
+
+}) {
+
+  /* GET USER */
+
+  const user = JSON.parse(
+
+    localStorage.getItem('user')
+
+  )
+
+  /* NO USER */
+
+  if (!user) {
+
+    return <Navigate to="/login" replace />
+
   }
+
+  /* ROLE */
+
+  const role =
+
+    user.role?.toUpperCase()
+
+  console.log('CURRENT ROLE:', role)
+
+  /* ACCESS CHECK */
+
+  const hasAccess = allowedRoles.some(
+
+    (allowedRole) =>
+
+      role?.includes(
+
+        allowedRole.toUpperCase()
+
+      )
+
+  )
+
+  /* ACCESS DENIED */
+
+  if (!hasAccess) {
+
+    let redirect = '/patient/dashboard'
+
+    if(role?.includes('ADMIN')){
+
+      redirect = '/admin/dashboard'
+
+    }
+
+    else if(role?.includes('HOSPITAL')){
+
+      redirect = '/hospital/dashboard'
+
+    }
+
+    return (
+
+      <Navigate
+
+        to={redirect}
+
+        replace
+
+      />
+
+    )
+
+  }
+
   return children
+
 }
